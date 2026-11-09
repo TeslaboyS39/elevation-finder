@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elevation Finder Pro</title>
+    <link rel="icon" href="data:,">
+    <script>
+        // Terapkan tema tersimpan sebelum halaman digambar (hindari kedipan).
+        try {
+            const savedTheme = localStorage.getItem('afinder.theme');
+            if (savedTheme === 'light' || savedTheme === 'dark') document.documentElement.setAttribute('data-theme', savedTheme);
+        } catch (e) { /* abaikan */ }
+    </script>
+    <link rel="stylesheet" href="css/style.css">
+    <script type="module" src="js/main.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="topbar">
+            <div class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19l6-10 4 6 3-4 5 8z"/><circle cx="17" cy="5" r="1.6"/></svg>
+            </div>
+            <div>
+                <h1>Elevation Finder Pro</h1>
+                <p data-i18n="app.subtitle"></p>
+            </div>
+            <div class="topbar-actions">
+                <div class="seg seg-compact" role="group" data-i18n-aria="lang.label">
+                    <button type="button" class="lang-btn" data-lang="id">ID</button>
+                    <button type="button" class="lang-btn" data-lang="en">EN</button>
+                </div>
+                <button type="button" id="themeBtn" class="icon-btn"></button>
+            </div>
+        </header>
+
+        <section class="panel">
+            <div class="form-grid">
+                <div class="options-row">
+                    <div>
+                        <span class="field-label" data-i18n="mode.label"></span>
+                        <div class="seg">
+                            <input type="radio" id="mode-distance" name="mode" value="distance" checked>
+                            <label for="mode-distance" data-i18n="mode.distance"></label>
+                            <input type="radio" id="mode-elevation" name="mode" value="elevation">
+                            <label for="mode-elevation" data-i18n="mode.elevation"></label>
+                        </div>
+                    </div>
+                    <div id="sourceGroup" hidden>
+                        <span class="field-label" data-i18n="source.label"></span>
+                        <div class="seg">
+                            <input type="radio" id="source-openmeteo" name="source" value="openmeteo" checked>
+                            <label for="source-openmeteo">Open-Meteo</label>
+                            <input type="radio" id="source-elevationapi" name="source" value="elevationapi">
+                            <label for="source-elevationapi">Elevation API</label>
+                        </div>
+                        <p class="hint" id="sourceHint"></p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="field-label" for="coordinates" data-i18n="input.label"></label>
+                    <textarea id="coordinates" spellcheck="false" autocomplete="off" data-i18n-placeholder="input.placeholder"></textarea>
+                    <p class="hint" data-i18n="input.hint"></p>
+                    <p class="input-status" id="inputStatus" aria-live="polite"></p>
+                </div>
+
+                <div class="form-footer">
+                    <button type="button" id="clearBtn" class="btn-secondary" data-i18n="btn.clear"></button>
+                    <button type="button" id="processBtn" class="btn-primary">
+                        <span class="spinner" id="processSpinner" hidden></span>
+                        <span id="processLabel"></span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <div id="error" class="error" role="alert" hidden></div>
+
+        <div id="emptyState" class="empty" data-i18n-html="empty"></div>
+
+        <section id="results" class="results" hidden>
+            <div id="summary" class="panel"></div>
+
+            <div id="chartPanel" class="panel chart-panel" hidden>
+                <div class="panel-head">
+                    <h3 data-i18n="chart.title"></h3>
+                    <button type="button" id="saveChartBtn" class="btn-secondary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+                        <span data-i18n="chart.save"></span>
+                    </button>
+                </div>
+                <p class="hint" id="chartStatus" hidden></p>
+                <div class="chart-box"><canvas id="elevationChart"></canvas></div>
+            </div>
+
+            <div class="toolbar">
+                <div class="decimal-group" data-i18n-title="decimal.title">
+                    <span data-i18n="decimal.label"></span>
+                    <div class="seg">
+                        <input type="radio" id="decimal-dot" name="decimal" value=".">
+                        <label for="decimal-dot">1.5</label>
+                        <input type="radio" id="decimal-comma" name="decimal" value=",">
+                        <label for="decimal-comma">1,5</label>
+                    </div>
+                </div>
+                <div class="toolbar-right">
+                    <button type="button" id="copyBtn" class="btn-secondary" data-i18n-title="copy.title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>
+                        <span id="copyLabel"></span>
+                    </button>
+                    <button type="button" id="csvBtn" class="btn-secondary" data-i18n-title="csv.title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+                        <span data-i18n="csv.label"></span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="tableWrap" class="table-wrap"></div>
+        </section>
+
+        <p class="footnote" data-i18n="footnote"></p>
+    </div>
+</body>
+</html>
